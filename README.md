@@ -26,6 +26,7 @@ Revisions made on main.js to optimize FPS: (no changes made on pizza.html itself
 1. Replaced document.querySelector with document.getElementById or document.getElementsByClassName
 
 2. determineDx is overly complicated and inefficient when the random pizzas reuse calculations on every 5th pizza. I have removed the determineDx function but done the following:
+
 ..1. kept the sizeSwitcher() function within the parent function (resizePizzas())
 ..2. newwidth calculation was revised so we do not have to access windowwidth (document.body.offsetWidth) everytime we access EACH random pizza. 
 
@@ -36,6 +37,7 @@ Revisions made on main.js to optimize FPS: (no changes made on pizza.html itself
 5. document.body.scrollTop does not need to be accessed within the FOR loop. I assigned it once outside the FOR loop into a variable called scrollTopVal.
 
 6. In the updatePositions() FOR loop, the phase variable repeats its calculation on every 5th pizza. 
+
 ..1. I made the phase variable into an array
 ..2. I have revised the FOR loop so that for the first 5 in FOR loop, we proceed and calculate the phase value and store them into the array
 ..3. After the first 5, we simply reuse the phase value (in phase array) to cut down on recalculations
