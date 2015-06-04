@@ -1,0 +1,4 @@
+w3schools.com
+stackoverflow.com
+https://validator.w3.org/
+jshint.com
