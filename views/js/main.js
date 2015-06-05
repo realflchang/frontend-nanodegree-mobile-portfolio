@@ -532,11 +532,24 @@ function updatePositions() {
   }
 }
 
-// runs updatePositions on scroll
+// Runs updatePositions on scroll
 window.addEventListener('scroll', updatePositions);
+
+// If user resizes window, reset pizza count and update
+window.addEventListener('resize', resetPositions);
+
+// Redo pizza count if window size changes or is resized
+function resetPositions() {
+  document.getElementById("movingPizzas1").innerHTML = "";
+  defineMovingPizzas();
+}
 
 // Generates the sliding pizzas when the page loads.
 document.addEventListener('DOMContentLoaded', function() {
+  defineMovingPizzas();
+});
+
+function defineMovingPizzas() {
   // 8 cols of pizza was the original number of pizzas per row. On smaller screens, we do not need that many columns.
   // It appears we can limit cols to the following window widths:
   // 800 or less: 3, 900: 4, 1000: 5, 1200: 6, 1400: 7, 1600+: 8
@@ -563,4 +576,4 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("movingPizzas1").appendChild(elem); // Replaced querySelector with getElementById
   }
   updatePositions();
-});
+}
