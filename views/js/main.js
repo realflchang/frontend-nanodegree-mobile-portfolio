@@ -499,34 +499,28 @@ function updatePositions() {
   window.performance.mark("mark_start_frame");
 
   var scrollTopVal = document.body.scrollTop / 1250;
-  var phase; // an array to store phase value calculations
-  var basicLeftVal = []; // an array for calculated basicLeft values
+  var phase = []; // An array to store phase value calculations
+  var basicLeftVal = []; // An array for calculated basicLeft values
+  var leftAdj = 0; // Reposition moving pizzas depending on screen size
+  var windowwidth = window.innerWidth;
+  if (windowwidth >= 992) { // Compensate for movingPizzas in a col-md-6 grid using style.transform
+    leftAdj = -windowwidth / 2;
+  }
 
-  // phase value repeats on every 5th pizza, so I have changed the FOR loop to work on every 5th pizza
-  for (var i = 0; i < items.length; i+=5) {
+  // Phase value repeats on every 5th pizza
+  for (var i = 0; i < items.length; i++) {
 
-    // for first 5 pizza, do the phase calculations. After that, we just reuse what we have calculated in phase array
+    // For first 5 pizza, do the phase calculations. After that, we just reuse what we have calculated in phase array
     if (i < 5) {
-      phase = [ Math.sin(scrollTopVal + items[i].modVal),
-                Math.sin(scrollTopVal + items[i+1].modVal),
-                Math.sin(scrollTopVal + items[i+2].modVal),
-                Math.sin(scrollTopVal + items[i+3].modVal),
-                Math.sin(scrollTopVal + items[i+4].modVal) ];
+      phase[i] = Math.sin(scrollTopVal + items[i].modVal);
     }
 
-    // phase value repeats every 5th pizza.
-    basicLeftVal[i] = items[i].basicLeft + 100 * phase[0] + 'px';
-    basicLeftVal[i+1] = items[i+1].basicLeft + 100 * phase[1] + 'px';
-    basicLeftVal[i+2] = items[i+2].basicLeft + 100 * phase[2] + 'px';
-    basicLeftVal[i+3] = items[i+3].basicLeft + 100 * phase[3] + 'px';
-    basicLeftVal[i+4] = items[i+4].basicLeft + 100 * phase[4] + 'px';
+    // Phase value repeats every 5th pizza.
+    basicLeftVal[i] = leftAdj + items[i].basicLeft + 100 * phase[i % 5] + 'px';
 
     items[i].style.transform = 'translateX(' + basicLeftVal[i] + ')';
-    items[i+1].style.transform = 'translateX(' + basicLeftVal[i+1] + ')';
-    items[i+2].style.transform = 'translateX(' + basicLeftVal[i+2] + ')';
-    items[i+3].style.transform = 'translateX(' + basicLeftVal[i+3] + ')';
-    items[i+4].style.transform = 'translateX(' + basicLeftVal[i+4] + ')';
   }
+
 
   // User Timing API to the rescue again. Seriously, it's worth learning.
   // Super easy to create custom metrics.
@@ -543,9 +537,21 @@ window.addEventListener('scroll', updatePositions);
 
 // Generates the sliding pizzas when the page loads.
 document.addEventListener('DOMContentLoaded', function() {
-  var cols = 8;
-  var s = 256;
-  for (var i = 0; i < 20; i++) {
+  // 8 cols of pizza was the original number of pizzas per row. On smaller screens, we do not need that many columns.
+  // It appears we can limit cols to the following window widths:
+  // 800 or less: 3, 900: 4, 1000: 5, 1200: 6, 1400: 7, 1600+: 8
+  var windowwidth = window.innerWidth;
+  var cols = windowwidth / 200;
+  cols = cols < 3 ? 3 : cols; // Assign minimum 3 columns
+  cols = cols > 8 ? 8 : cols; // Assign maximum 8 columns
+
+  // Calculate the minimum number of pizzas needed to be displayed, based on window height and # of cols
+  var windowheight = window.innerHeight;
+  var s = 256; // This is the row height of a row of pizzas
+  var r = Math.floor(windowheight / s); // Calculate rows we need
+  var count = (r + 1) * cols; // Our tally, save in a variable for use in below for loop
+
+  for (var i = 0; i < count; i++) {
     var elem = document.createElement('img');
     elem.className = 'mover';
     elem.src = "images/pizza.png";
@@ -553,8 +559,8 @@ document.addEventListener('DOMContentLoaded', function() {
     elem.style.width = "73.333px";
     elem.basicLeft = (i % cols) * s;
     elem.style.top = (Math.floor(i / cols) * s) + 'px';
-    elem.modVal = i % 5; // limit mod calculations to only when sliding pizzas are being created here, and assign to modVal property
-    document.getElementById("movingPizzas1").appendChild(elem); // replaced querySelector with getElementById
+    elem.modVal = i % 5; // Limit mod calculations to only when sliding pizzas are being created here, and assign to modVal property
+    document.getElementById("movingPizzas1").appendChild(elem); // Replaced querySelector with getElementById
   }
   updatePositions();
 });
